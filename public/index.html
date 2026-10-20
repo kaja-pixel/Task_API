@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillForge Task Management API Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --code-bg: #050811;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                  var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--card-border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 40%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.9); }
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row > div {
+      flex: 1;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Response Panel */
+    .response-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge-200, .badge-201 { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-400, .badge-404 { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .badge-500 { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      padding: 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      max-height: 480px;
+    }
+
+    /* Task Table */
+    .task-list {
+      margin-top: 16px;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+
+    .task-item {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .task-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 0.75rem;
+    }
+
+    .tag {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .tag-status { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .tag-priority { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+
+    .action-btn:hover {
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .action-btn.delete:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1>SkillForge Task Management API</h1>
+        <p>Software Engineering Internship – Day 1 Task Explorer</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <span class="status-badge">
+          <span class="status-dot"></span>
+          <span id="health-text">API Online</span>
+        </span>
+        <a href="/postman/Task_Management_API.postman_collection.json" download class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px; text-decoration: none;">
+          📥 Download Postman JSON
+        </a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Left Column: Controls & Actions -->
+      <div class="card">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('create')">➕ Create Task</button>
+          <button class="tab-btn" onclick="switchTab('list')">📋 Filter & List</button>
+          <button class="tab-btn" onclick="switchTab('update')">✏️ Update / Delete</button>
+        </div>
+
+        <!-- 1. CREATE TAB -->
+        <div id="tab-create">
+          <form id="create-form" onsubmit="handleCreateTask(event)">
+            <div class="form-group">
+              <label>Task Title *</label>
+              <input type="text" id="create-title" class="form-control" placeholder="e.g., Complete Day 1 Backend API" required>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="create-description" class="form-control" rows="2" placeholder="Task details..."></textarea>
+            </div>
+            <div class="row">
+              <div class="form-group">
+                <label>Status</label>
+                <select id="create-status" class="form-control">
+                  <option value="PENDING">PENDING</option>
+                  <option value="IN_PROGRESS" selected>IN_PROGRESS</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Priority</label>
+                <select id="create-priority" class="form-control">
+                  <option value="LOW">LOW</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="HIGH" selected>HIGH</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Due Date</label>
+              <input type="datetime-local" id="create-duedate" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">🚀 Send POST /api/tasks</button>
+          </form>
+        </div>
+
+        <!-- 2. LIST & FILTER TAB -->
+        <div id="tab-list" style="display: none;">
+          <div class="row" style="margin-bottom: 12px;">
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Status Filter</label>
+              <select id="filter-status" class="form-control" onchange="fetchTasks()">
+                <option value="">All Statuses</option>
+                <option value="PENDING">PENDING</option>
+                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                <option value="COMPLETED">COMPLETED</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Priority Filter</label>
+              <select id="filter-priority" class="form-control" onchange="fetchTasks()">
+                <option value="">All Priorities</option>
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <input type="text" id="filter-search" class="form-control" placeholder="Search tasks by keyword..." oninput="debounceSearch()">
+          </div>
+          <div class="task-list" id="task-list-container">
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Click below to load tasks.</p>
+          </div>
+          <button onclick="fetchTasks()" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">🔄 Refresh Tasks (GET /api/tasks)</button>
+        </div>
+
+        <!-- 3. UPDATE & DELETE TAB -->
+        <div id="tab-update" style="display: none;">
+          <div class="form-group">
+            <label>Task UUID *</label>
+            <input type="text" id="manage-id" class="form-control" placeholder="Paste Task UUID here...">
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label>New Status</label>
+              <select id="manage-status" class="form-control">
+                <option value="PENDING">PENDING</option>
+                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                <option value="COMPLETED" selected>COMPLETED</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>New Priority</label>
+              <select id="manage-priority" class="form-control">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>New Title (Optional)</label>
+            <input type="text" id="manage-title" class="form-control" placeholder="Leave blank to keep current title">
+          </div>
+          <div class="row" style="margin-top: 16px;">
+            <button onclick="handleUpdateTask()" class="btn btn-primary" style="flex: 2;">💾 Update (PUT)</button>
+            <button onclick="handleDeleteTask()" class="btn btn-secondary" style="flex: 1; border-color: var(--danger); color: #f87171;">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live API Response Viewer -->
+      <div class="card">
+        <div class="response-header">
+          <span class="card-title" style="margin-bottom: 0;">📡 Live Response</span>
+          <span id="response-status-badge" class="badge badge-200">200 OK</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+          Endpoint: <span id="response-endpoint" style="color: #a5b4fc; font-family: monospace;">GET /api/health</span>
+        </div>
+        <pre><code id="json-viewer">// Responses will appear here in real-time...</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let searchTimeout;
+
+    function switchTab(tab) {
+      document.getElementById('tab-create').style.display = tab === 'create' ? 'block' : 'none';
+      document.getElementById('tab-list').style.display = tab === 'list' ? 'block' : 'none';
+      document.getElementById('tab-update').style.display = tab === 'update' ? 'block' : 'none';
+
+      document.querySelectorAll('.tab-btn').forEach((btn, index) => {
+        btn.classList.toggle('active', 
+          (tab === 'create' && index === 0) ||
+          (tab === 'list' && index === 1) ||
+          (tab === 'update' && index === 2)
+        );
+      });
+
+      if (tab === 'list') {
+        fetchTasks();
+      }
+    }
+
+    function showResponse(status, endpoint, data) {
+      const badge = document.getElementById('response-status-badge');
+      badge.textContent = `${status}`;
+      badge.className = `badge badge-${status.toString().startsWith('2') ? '200' : '400'}`;
+      document.getElementById('response-endpoint').textContent = endpoint;
+      document.getElementById('json-viewer').textContent = JSON.stringify(data, null, 2);
+    }
+
+    // Health check on load
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        showResponse(res.status, 'GET /api/health', data);
+        document.getElementById('health-text').textContent = 'API Online';
+      } catch (err) {
+        document.getElementById('health-text').textContent = 'Server Offline';
+      }
+    }
+
+    // Create Task
+    async function handleCreateTask(e) {
+      e.preventDefault();
+      const title = document.getElementById('create-title').value;
+      const description = document.getElementById('create-description').value;
+      const status = document.getElementById('create-status').value;
+      const priority = document.getElementById('create-priority').value;
+      const rawDate = document.getElementById('create-duedate').value;
+      const dueDate = rawDate ? new Date(rawDate).toISOString() : undefined;
+
+      const payload = { title, description: description || undefined, status, priority, dueDate };
+
+      try {
+        const res = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        showResponse(res.status, 'POST /api/tasks', data);
+
+        if (res.ok && data.data && data.data.id) {
+          document.getElementById('manage-id').value = data.data.id;
+        }
+      } catch (err) {
+        showResponse(500, 'POST /api/tasks', { error: err.message });
+      }
+    }
+
+    // Fetch Tasks with Filters
+    async function fetchTasks() {
+      const status = document.getElementById('filter-status').value;
+      const priority = document.getElementById('filter-priority').value;
+      const search = document.getElementById('filter-search').value;
+
+      const params = new URLSearchParams();
+      if (status) params.append('status', status);
+      if (priority) params.append('priority', priority);
+      if (search) params.append('search', search);
+
+      const url = `/api/tasks?${params.toString()}`;
+
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        showResponse(res.status, `GET ${url}`, json);
+
+        const container = document.getElementById('task-list-container');
+        if (json.success && json.data && json.data.length > 0) {
+          container.innerHTML = json.data.map(task => `
+            <div class="task-item">
+              <div>
+                <div class="task-title">${escapeHtml(task.title)}</div>
+                <div class="task-meta">
+                  <span class="tag tag-status">${task.status}</span>
+                  <span class="tag tag-priority">${task.priority}</span>
+                  <span style="color: var(--text-muted);">${task.id.slice(0, 8)}...</span>
+                </div>
+              </div>
+              <div>
+                <button class="action-btn" onclick="selectForManage('${task.id}', '${task.status}', '${task.priority}', '${escapeQuotes(task.title)}')">Manage</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">No tasks found.</p>`;
+        }
+      } catch (err) {
+        showResponse(500, `GET ${url}`, { error: err.message });
+      }
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(fetchTasks, 300);
+    }
+
+    function selectForManage(id, status, priority, title) {
+      document.getElementById('manage-id').value = id;
+      document.getElementById('manage-status').value = status;
+      document.getElementById('manage-priority').value = priority;
+      document.getElementById('manage-title').value = title;
+      switchTab('update');
+    }
+
+    // Update Task
+    async function handleUpdateTask() {
+      const id = document.getElementById('manage-id').value.trim();
+      if (!id) return alert('Please enter a Task ID');
+
+      const status = document.getElementById('manage-status').value;
+      const priority = document.getElementById('manage-priority').value;
+      const title = document.getElementById('manage-title').value.trim();
+
+      const payload = { status, priority };
+      if (title) payload.title = title;
+
+      try {
+        const res = await fetch(`/api/tasks/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        showResponse(res.status, `PUT /api/tasks/${id}`, data);
+      } catch (err) {
+        showResponse(500, `PUT /api/tasks/${id}`, { error: err.message });
+      }
+    }
+
+    // Delete Task
+    async function handleDeleteTask() {
+      const id = document.getElementById('manage-id').value.trim();
+      if (!id) return alert('Please enter a Task ID');
+
+      if (!confirm(`Are you sure you want to delete task ${id}?`)) return;
+
+      try {
+        const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        showResponse(res.status, `DELETE /api/tasks/${id}`, data);
+      } catch (err) {
+        showResponse(500, `DELETE /api/tasks/${id}`, { error: err.message });
+      }
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+    }
+
+    function escapeQuotes(str) {
+      return (str || '').replace(/'/g, "\\'");
+    }
+
+    // Check health on start
+    checkHealth();
+  </script>
+</body>
+</html>
