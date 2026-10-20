@@ -1,0 +1,289 @@
+{
+  "info": {
+    "_postman_id": "a918f0a3-2384-4eb9-81bc-569d4bbff501",
+    "name": "SkillForge Task Management API",
+    "description": "Postman Collection for Day 1 Task Management REST API (SkillForge Technologies Internship). Built with Node.js, Express, TypeScript, PostgreSQL, and Prisma.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Checks whether the API server is alive and running."
+      },
+      "response": []
+    },
+    {
+      "name": "1. Create Task (Full Details)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "if (response.success && response.data && response.data.id) {",
+              "    pm.collectionVariables.set('taskId', response.data.id);",
+              "    console.log('Saved taskId to collection variables:', response.data.id);",
+              "}",
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(response.success).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Complete Day 1 Internship Backend Task\",\n  \"description\": \"Build and test Task Management REST API with TypeScript and Prisma\",\n  \"status\": \"IN_PROGRESS\",\n  \"priority\": \"HIGH\",\n  \"dueDate\": \"2026-10-25T18:00:00.000Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tasks",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"]
+        },
+        "description": "Create a task with title, description, status, priority, and due date. Saves the created task's ID into the {{taskId}} variable automatically."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Create Task (Minimal - Default Status & Priority)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Review code with mentor\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tasks",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"]
+        },
+        "description": "Create a task with only required fields (title). Status defaults to PENDING and Priority defaults to MEDIUM."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Create Task - Validation Error (Empty Title)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"\",\n  \"status\": \"INVALID_STATUS\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tasks",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"]
+        },
+        "description": "Tests input validation and error handling for empty title and invalid status."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Get All Tasks",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"]
+        },
+        "description": "Get all tasks with pagination metadata."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Filter Tasks by Status (IN_PROGRESS)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?status=IN_PROGRESS",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [
+            {
+              "key": "status",
+              "value": "IN_PROGRESS"
+            }
+          ]
+        },
+        "description": "Filter tasks where status is IN_PROGRESS."
+      },
+      "response": []
+    },
+    {
+      "name": "6. Filter Tasks by Priority (HIGH)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?priority=HIGH",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [
+            {
+              "key": "priority",
+              "value": "HIGH"
+            }
+          ]
+        },
+        "description": "Filter tasks where priority is HIGH."
+      },
+      "response": []
+    },
+    {
+      "name": "7. Filter Tasks by Both Status and Priority",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?status=IN_PROGRESS&priority=HIGH",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [
+            {
+              "key": "status",
+              "value": "IN_PROGRESS"
+            },
+            {
+              "key": "priority",
+              "value": "HIGH"
+            }
+          ]
+        },
+        "description": "Filter tasks combining both status and priority filters."
+      },
+      "response": []
+    },
+    {
+      "name": "8. Search Tasks by Keyword",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?search=Internship",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [
+            {
+              "key": "search",
+              "value": "Internship"
+            }
+          ]
+        },
+        "description": "Search tasks by title or description keyword."
+      },
+      "response": []
+    },
+    {
+      "name": "9. Get Task by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks/{{taskId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks", "{{taskId}}"]
+        },
+        "description": "Retrieve single task by its UUID."
+      },
+      "response": []
+    },
+    {
+      "name": "10. Update Task Details (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Complete Day 1 Internship Backend Task - Updated\",\n  \"description\": \"API tested successfully with Postman and all validations passed\",\n  \"status\": \"COMPLETED\",\n  \"priority\": \"HIGH\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tasks/{{taskId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks", "{{taskId}}"]
+        },
+        "description": "Update task details and mark status as COMPLETED."
+      },
+      "response": []
+    },
+    {
+      "name": "11. Delete Task",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks/{{taskId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks", "{{taskId}}"]
+        },
+        "description": "Delete task by ID."
+      },
+      "response": []
+    },
+    {
+      "name": "12. Verify Task Deleted (Returns 404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks/{{taskId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks", "{{taskId}}"]
+        },
+        "description": "Verifies that the deleted task ID now returns a 404 Not Found response."
+      },
+      "response": []
+    }
+  ]
+}

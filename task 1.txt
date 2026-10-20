@@ -1,0 +1,41 @@
+SkillForge Technologies (Pvt) Ltd.
+
+Software Engineering Internship – Day 1 Task
+
+Task: Task Management REST API
+
+Technologies:** Node.js, TypeScript, Express.js, PostgreSQL, Prisma
+
+Objective:
+Develop a backend API to manage daily tasks.
+
+Requirements:
+
+1. Create a new task with title, description, status, priority and due date.
+2. Get all tasks and get a single task by ID.
+3. Filter tasks by status and priority.
+4. Update task details and status.
+5. Delete a task.
+6. Validate user inputs and handle errors properly.
+7. Store task data in PostgreSQL using Prisma.
+8. Test all API endpoints using Postman.
+
+GitHub Requirements:
+
+- Create a GitHub repository.
+- Use a separate feature branch.
+- Commit and push your code.
+- Create a Pull Request to the main branch.
+
+Submission:
+
+1. GitHub repository link.
+2. Pull Request link.
+3. Postman testing evidence.
+4. README file with setup instructions.
+
+Important:
+
+Write clean, organized and reusable code. Test your API before submission. Be prepared to explain your code and implementation decisions to your mentor.
+
+If you face any difficulties, document the issue and discuss it with your mentor.
