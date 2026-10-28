@@ -23,7 +23,7 @@ export class TaskController {
    */
   static async getAllTasks(req: Request, res: Response, next: NextFunction) {
     try {
-      const query = req.query as unknown as GetTasksQueryInput;
+      const query = res.locals.validatedQuery as GetTasksQueryInput;
       const { tasks, meta } = await TaskService.getAllTasks(query);
       return ApiResponse.success(res, "Tasks retrieved successfully", tasks, meta);
     } catch (error) {

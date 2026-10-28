@@ -62,6 +62,7 @@
       font-weight: 700;
       letter-spacing: -0.02em;
       background: linear-gradient(135deg, #fff 40%, #94a3b8);
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -273,22 +274,32 @@
     .task-list {
       margin-top: 16px;
       max-height: 350px;
-      overflow-y: auto;
+      overflow: auto;
     }
 
-    .task-item {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s;
+    .task-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
     }
 
-    .task-item:hover {
+    .task-table th,
+    .task-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--card-border);
+      vertical-align: middle;
+    }
+
+    .task-table th {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .task-table tbody tr:hover {
       background: rgba(255, 255, 255, 0.03);
     }
 
@@ -297,11 +308,12 @@
       font-size: 0.95rem;
     }
 
-    .task-meta {
-      display: flex;
-      gap: 8px;
-      margin-top: 4px;
-      font-size: 0.75rem;
+    .task-id {
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      overflow-wrap: anywhere;
+      min-width: 150px;
     }
 
     .tag {
@@ -341,7 +353,7 @@
     <header>
       <div class="brand">
         <h1>SkillForge Task Management API</h1>
-        <p>Software Engineering Internship – Day 1 Task Explorer</p>
+        <p>Software Engineering Internship – </p>
       </div>
       <div style="display: flex; gap: 12px; align-items: center;">
         <span class="status-badge">
@@ -426,7 +438,7 @@
             <input type="text" id="filter-search" class="form-control" placeholder="Search tasks by keyword..." oninput="debounceSearch()">
           </div>
           <div class="task-list" id="task-list-container">
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Click below to load tasks.</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">Click below to load tasks.</p>
           </div>
           <button onclick="fetchTasks()" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">🔄 Refresh Tasks (GET /api/tasks)</button>
         </div>
@@ -570,21 +582,30 @@
 
         const container = document.getElementById('task-list-container');
         if (json.success && json.data && json.data.length > 0) {
-          container.innerHTML = json.data.map(task => `
-            <div class="task-item">
-              <div>
-                <div class="task-title">${escapeHtml(task.title)}</div>
-                <div class="task-meta">
-                  <span class="tag tag-status">${task.status}</span>
-                  <span class="tag tag-priority">${task.priority}</span>
-                  <span style="color: var(--text-muted);">${task.id.slice(0, 8)}...</span>
-                </div>
-              </div>
-              <div>
-                <button class="action-btn" onclick="selectForManage('${task.id}', '${task.status}', '${task.priority}', '${escapeQuotes(task.title)}')">Manage</button>
-              </div>
-            </div>
-          `).join('');
+          container.innerHTML = `
+            <table class="task-table">
+              <thead>
+                <tr>
+                  <th>Task ID</th>
+                  <th>Task Title</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${json.data.map(task => `
+                  <tr>
+                    <td class="task-id">${escapeHtml(task.id)}</td>
+                    <td class="task-title">${escapeHtml(task.title)}</td>
+                    <td><span class="tag tag-status">${escapeHtml(task.status)}</span></td>
+                    <td><span class="tag tag-priority">${escapeHtml(task.priority)}</span></td>
+                    <td><button class="action-btn" onclick="selectForManage('${escapeQuotes(task.id)}', '${escapeQuotes(task.status)}', '${escapeQuotes(task.priority)}', '${escapeQuotes(task.title)}')">Manage</button></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
         } else {
           container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">No tasks found.</p>`;
         }
