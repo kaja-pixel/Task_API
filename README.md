@@ -88,7 +88,7 @@ Update the `DATABASE_URL` in `.env` with your PostgreSQL credentials:
 ```env
 PORT=5000
 NODE_ENV=development
-DATABASE_URL="postgresql://username:password@localhost:5432/task_management_db?schema=public"
+DATABASE_URL="postgresql://username:password@localhost:5432/Taskdb?schema=public"
 ```
 
 > **Tip for Cloud PostgreSQL (Neon / Supabase)**: If you don't have PostgreSQL installed on Windows, you can create a free database at [Neon.tech](https://neon.tech) in 30 seconds and paste the connection string into `DATABASE_URL`.

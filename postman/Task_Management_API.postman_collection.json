@@ -20,6 +20,23 @@
   "item": [
     {
       "name": "0. Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Health check reports OK', function () {",
+              "    pm.expect(response.status).to.eql('OK');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -78,6 +95,24 @@
     },
     {
       "name": "2. Create Task (Minimal - Default Status & Priority)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Default status and priority are applied', function () {",
+              "    pm.expect(response.data.status).to.eql('PENDING');",
+              "    pm.expect(response.data.priority).to.eql('MEDIUM');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -120,10 +155,48 @@
         },
         "description": "Tests input validation and error handling for empty title and invalid status."
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 400 Bad Request', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Validation failure uses the standard error shape', function () {",
+              "    pm.expect(response.success).to.be.false;",
+              "    pm.expect(response.message).to.eql('Validation failed');",
+              "    pm.expect(response.error).to.be.an('array').that.is.not.empty;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "response": []
     },
     {
       "name": "4. Get All Tasks",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Tasks and pagination metadata are returned', function () {",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.be.an('array');",
+              "    pm.expect(response.meta).to.have.all.keys('total', 'page', 'limit', 'totalPages', 'hasNextPage', 'hasPrevPage');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -133,6 +206,38 @@
           "path": ["tasks"]
         },
         "description": "Get all tasks with pagination metadata."
+      },
+      "response": []
+    },
+    {
+      "name": "4a. Paginate and Sort Tasks",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?page=1&limit=10&sortBy=title&sortOrder=asc",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "sortBy",
+              "value": "title"
+            },
+            {
+              "key": "sortOrder",
+              "value": "asc"
+            }
+          ]
+        },
+        "description": "Get the first 10 tasks, sorted by title in ascending order."
       },
       "response": []
     },
@@ -236,6 +341,24 @@
     },
     {
       "name": "10. Update Task Details (PUT)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Task is updated to COMPLETED', function () {",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data.status).to.eql('COMPLETED');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "PUT",
         "header": [
@@ -258,7 +381,65 @@
       "response": []
     },
     {
+      "name": "10a. Partially Update Task (PATCH)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Only the priority changes', function () {",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data.priority).to.eql('MEDIUM');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"priority\": \"MEDIUM\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tasks/{{taskId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks", "{{taskId}}"]
+        },
+        "description": "Update only the task priority to demonstrate partial updates."
+      },
+      "response": []
+    },
+    {
       "name": "11. Delete Task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Delete succeeds', function () {",
+              "    pm.expect(response.success).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "DELETE",
         "header": [],
@@ -273,6 +454,23 @@
     },
     {
       "name": "12. Verify Task Deleted (Returns 404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Deleted task is reported as not found', function () {",
+              "    pm.expect(response.success).to.be.false;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
